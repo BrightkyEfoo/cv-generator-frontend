@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Maximize2, Loader2, RefreshCw, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CV } from '@/types/cv';
-import { cvApi } from '@/services/api';
+import { cvApi, settingsApi } from '@/services/api';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 
@@ -18,7 +18,23 @@ export function CVPreview({ cv, onDownload }: CVPreviewProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [images, setImages] = useState<string[]>([]);
+  const [freeDownloads, setFreeDownloads] = useState(false);
   const lastUpdatedAtRef = useRef<string | undefined>(cv.updatedAt);
+
+  // Fetch public settings to check if downloads are free
+  useEffect(() => {
+    settingsApi.getPublic()
+      .then((settings) => setFreeDownloads(settings.freeDownloads))
+      .catch(() => setFreeDownloads(false));
+  }, []);
+
+  // Helper to check if user can download for free
+  const canDownloadFree = cv.isPaid || freeDownloads;
+
+  // Handle direct download (for free downloads or paid CVs)
+  const handleDirectDownload = () => {
+    window.open(cvApi.getDownload(cv.id), '_blank');
+  };
 
   const fetchPreviewImages = useCallback(async () => {
     setIsLoading(true);
@@ -100,14 +116,14 @@ export function CVPreview({ cv, onDownload }: CVPreviewProps) {
                 <Maximize2 className="mr-2 h-4 w-4" />
                 Agrandir
               </Button>
-              {cv.isPaid && (
+              {canDownloadFree && (
                 <Button
-                  onClick={onDownload}
+                  onClick={handleDirectDownload}
                   size="sm"
                   className="bg-cvOrange hover:bg-cvOrange-dark"
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Télécharger
+                  {freeDownloads && !cv.isPaid ? 'Télécharger (gratuit)' : 'Télécharger'}
                 </Button>
               )}
             </div>
@@ -186,7 +202,7 @@ export function CVPreview({ cv, onDownload }: CVPreviewProps) {
             </div>
           )}
 
-          {!cv.isPaid && (
+          {!canDownloadFree && (
             <div className="mt-4 p-3 bg-cvOrange/10 border border-cvOrange/20 rounded-lg">
               <p className="text-sm text-cvOrange text-center">
                 Payez 500 FCFA pour télécharger votre CV en PDF haute qualité sans watermark
@@ -198,6 +214,14 @@ export function CVPreview({ cv, onDownload }: CVPreviewProps) {
                 <Download className="mr-2 h-4 w-4" />
                 Télécharger le PDF
               </Button>
+            </div>
+          )}
+
+          {freeDownloads && !cv.isPaid && (
+            <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <p className="text-sm text-green-500 text-center">
+                Téléchargement gratuit disponible ! Cliquez sur le bouton ci-dessus pour télécharger votre CV.
+              </p>
             </div>
           )}
         </CardContent>

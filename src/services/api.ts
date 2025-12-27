@@ -271,3 +271,12 @@ export const paymentApi = {
       method: 'POST',
     }),
 };
+
+// Public Settings API
+export interface PublicSettings {
+  freeDownloads: boolean;
+}
+
+export const settingsApi = {
+  getPublic: () => apiRequest<PublicSettings>('/settings/public'),
+};

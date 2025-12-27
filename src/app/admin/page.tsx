@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { adminTemplatesApi, adminCVsApi } from '@/services/adminApi';
+import { adminTemplatesApi, adminCVsApi, adminSettingsApi, type AppSettings } from '@/services/adminApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Users, TrendingUp } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { FileText, Users, TrendingUp, Download, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
@@ -12,14 +15,17 @@ export default function AdminDashboardPage() {
     cvsCount: 0,
     paidCvsCount: 0,
   });
+  const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const [templates, cvs] = await Promise.all([
+        const [templates, cvs, appSettings] = await Promise.all([
           adminTemplatesApi.getAll(),
           adminCVsApi.getAll(),
+          adminSettingsApi.get(),
         ]);
 
         setStats({
@@ -27,15 +33,30 @@ export default function AdminDashboardPage() {
           cvsCount: cvs.length,
           paidCvsCount: cvs.filter((cv) => cv.isPaid).length,
         });
+        setSettings(appSettings);
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchStats();
+    fetchData();
   }, []);
+
+  const handleFreeDownloadsToggle = async (enabled: boolean) => {
+    setIsUpdatingSettings(true);
+    try {
+      const updatedSettings = await adminSettingsApi.update({ freeDownloads: enabled });
+      setSettings(updatedSettings);
+      toast.success(enabled ? 'Téléchargements gratuits activés' : 'Téléchargements gratuits désactivés');
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour des paramètres');
+      console.error('Failed to update settings:', error);
+    } finally {
+      setIsUpdatingSettings(false);
+    }
+  };
 
   const statCards = [
     {
@@ -100,6 +121,52 @@ export default function AdminDashboardPage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Settings Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Paramètres</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Téléchargements
+            </CardTitle>
+            <CardDescription>
+              Configurez les options de téléchargement des CVs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="free-downloads" className="text-base">
+                  Téléchargements gratuits
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Permet aux utilisateurs de télécharger les CVs sans paiement (mode test)
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {isUpdatingSettings && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+                <Switch
+                  id="free-downloads"
+                  checked={settings?.freeDownloads ?? false}
+                  onCheckedChange={handleFreeDownloadsToggle}
+                  disabled={isLoading || isUpdatingSettings}
+                />
+              </div>
+            </div>
+            {settings?.freeDownloads && (
+              <div className="mt-4 p-3 bg-cvOrange/10 border border-cvOrange/20 rounded-lg">
+                <p className="text-sm text-cvOrange">
+                  Les téléchargements sont actuellement gratuits. Les utilisateurs peuvent télécharger les CVs sans payer.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

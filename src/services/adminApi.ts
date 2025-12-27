@@ -90,3 +90,22 @@ export const adminTemplatesApi = {
 export const adminCVsApi = {
   getAll: () => adminRequest<CV[]>('/admin/cvs'),
 };
+
+// App Settings types
+export interface AppSettings {
+  id: string;
+  freeDownloads: boolean;
+  updatedAt: string;
+  updatedBy?: string;
+}
+
+// Admin Settings API
+export const adminSettingsApi = {
+  get: () => adminRequest<AppSettings>('/admin/settings'),
+
+  update: (data: { freeDownloads?: boolean }) =>
+    adminRequest<AppSettings>('/admin/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+};
