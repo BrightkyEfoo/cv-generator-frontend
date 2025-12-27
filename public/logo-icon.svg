@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50">
+  <defs>
+    <linearGradient id="iconOrangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="iconBlueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="25" cy="25" r="24" fill="#0a0a0a" />
+
+  <!-- Document icon centered -->
+  <g transform="translate(12, 8)">
+    <!-- Main document shape -->
+    <path d="M3 0 L18 0 L26 8 L26 34 L3 34 Z" fill="url(#iconOrangeGradient)" />
+    <!-- Folded corner -->
+    <path d="M18 0 L18 8 L26 8 Z" fill="#ea580c" opacity="0.7" />
+    <!-- Lines representing text -->
+    <rect x="7" y="13" width="13" height="2" rx="1" fill="white" opacity="0.9" />
+    <rect x="7" y="18" width="10" height="2" rx="1" fill="white" opacity="0.7" />
+    <rect x="7" y="23" width="14" height="2" rx="1" fill="white" opacity="0.7" />
+    <rect x="7" y="28" width="8" height="2" rx="1" fill="white" opacity="0.5" />
+  </g>
+
+  <!-- Blue accent -->
+  <circle cx="40" cy="40" r="8" fill="url(#iconBlueGradient)" opacity="0.9" />
+  <text x="40" y="44" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" fill="white" text-anchor="middle">CV</text>
+</svg>
