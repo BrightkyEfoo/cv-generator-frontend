@@ -2,6 +2,7 @@ import type {
   CV,
   Template,
   TemplateCategory,
+  TemplateLanguage,
   PaymentIntent,
   UploadResponse,
   PersonalInfo,
@@ -206,6 +207,12 @@ export const cvApi = {
     apiRequest<CV>(`/cv/${id}/customization`, {
       method: 'PATCH',
       body: JSON.stringify({ customization }),
+    }),
+
+  updateTemplateLanguage: (id: string, templateLanguage: TemplateLanguage) =>
+    apiRequest<CV>(`/cv/${id}/template-language`, {
+      method: 'PATCH',
+      body: JSON.stringify({ templateLanguage }),
     }),
 
   getPreview: (id: string): string =>

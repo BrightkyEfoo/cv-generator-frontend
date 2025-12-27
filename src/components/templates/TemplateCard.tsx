@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Template } from '@/types/cv';
+import { getLanguageName, sortLanguagesWithDefaultFirst } from '@/types/cv';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { getAssetUrl, templatesApi } from '@/services/api';
+import { Globe } from 'lucide-react';
 
 interface TemplateCardProps {
   template: Template;
@@ -21,6 +23,11 @@ export function TemplateCard({ template, onSelect }: TemplateCardProps) {
     simple: 'bg-gray-500 text-white',
     academic: 'bg-green-500 text-white',
   };
+
+  // Sort languages with default first
+  const sortedLanguages = template.availableLanguages
+    ? sortLanguagesWithDefaultFirst(template.availableLanguages, template.defaultLanguage)
+    : [template.defaultLanguage || 'fr'];
 
   return (
     <motion.div
@@ -46,6 +53,21 @@ export function TemplateCard({ template, onSelect }: TemplateCardProps) {
         <CardHeader>
           <CardTitle className="text-foreground">{template.name}</CardTitle>
           <CardDescription>{template.description}</CardDescription>
+          {/* Available languages */}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <div className="flex gap-1 flex-wrap">
+              {sortedLanguages.map((lang, index) => (
+                <Badge
+                  key={lang}
+                  variant={index === 0 ? 'default' : 'secondary'}
+                  className={index === 0 ? 'bg-cvBlue/80 text-white text-xs' : 'text-xs'}
+                >
+                  {getLanguageName(lang)}
+                </Badge>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="mt-auto">
           <Button

@@ -17,6 +17,37 @@ export type LanguageProficiency = 'basic' | 'conversational' | 'professional' | 
 
 export type TemplateCategory = 'professional' | 'creative' | 'modern' | 'simple' | 'academic';
 
+export type TemplateLanguage = 'fr' | 'en' | 'es' | 'de' | 'pt' | 'it' | 'ar' | 'zh';
+
+// Human-readable language names
+export const LANGUAGE_NAMES: Record<TemplateLanguage, string> = {
+  fr: 'Français',
+  en: 'English',
+  es: 'Español',
+  de: 'Deutsch',
+  pt: 'Português',
+  it: 'Italiano',
+  ar: 'العربية',
+  zh: '中文',
+};
+
+// Helper to get human-readable language name
+export const getLanguageName = (code: TemplateLanguage): string => {
+  return LANGUAGE_NAMES[code] || code;
+};
+
+// Helper to sort languages with default first
+export const sortLanguagesWithDefaultFirst = (
+  languages: TemplateLanguage[],
+  defaultLanguage: TemplateLanguage
+): TemplateLanguage[] => {
+  return [...languages].sort((a, b) => {
+    if (a === defaultLanguage) return -1;
+    if (b === defaultLanguage) return 1;
+    return 0;
+  });
+};
+
 export type SectionLayout = 'list' | 'grid' | 'timeline';
 
 export type FieldType = 'text' | 'textarea' | 'date' | 'url' | 'list' | 'rating';
@@ -254,6 +285,7 @@ export interface CV {
   id: string;
   sessionId: string;
   title: string;
+  templateLanguage: TemplateLanguage;
   personalInfo: PersonalInfo;
   summary?: string;
   objective?: string;
@@ -292,6 +324,8 @@ export interface Template {
   description: string;
   previewUrl: string;
   category: TemplateCategory;
+  defaultLanguage: TemplateLanguage;
+  availableLanguages: TemplateLanguage[];
   features: TemplateFeatures;
   defaultColors: {
     primary: string;
