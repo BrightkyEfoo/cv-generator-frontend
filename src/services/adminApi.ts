@@ -2,6 +2,7 @@ import type { CV } from '@/types/cv';
 import type { AdminLoginRequest, AdminLoginResponse, AdminTemplate, CreateTemplateRequest } from '@/types/admin';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.cv-generator.brightkyefoo.cm/api';
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || 'secret-api-key-please-changeme';
 
 // Admin token management
 const ADMIN_TOKEN_KEY = 'admin_token';
@@ -29,6 +30,7 @@ async function adminRequest<T>(
   const token = getAdminToken();
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    ...(API_KEY && { 'X-API-Key': API_KEY }),
     ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
