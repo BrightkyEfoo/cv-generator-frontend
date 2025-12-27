@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { TemplateCard } from '@/components/templates/TemplateCard';
 import { Button } from '@/components/ui/button';
 import { useTemplates } from '@/hooks/useTemplates';
-import { useCreateCV } from '@/hooks/useCV';
+import { useCreateCV, useClearCVDraft } from '@/hooks/useCV';
 import type { Template, TemplateCategory } from '@/types/cv';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -26,6 +26,7 @@ export default function TemplatesPage() {
   const [selectedCategory, setSelectedCategory] = useState<TemplateCategory | 'all'>('all');
   const { data: templates, isLoading } = useTemplates();
   const createCV = useCreateCV();
+  const clearDraft = useClearCVDraft();
 
   const filteredTemplates = templates?.filter(
     (template) => selectedCategory === 'all' || template.category === selectedCategory
@@ -33,6 +34,8 @@ export default function TemplatesPage() {
 
   const handleSelectTemplate = async (template: Template) => {
     try {
+      // Clear any existing draft before creating new CV
+      clearDraft();
       const cv = await createCV.mutateAsync({
         title: 'Mon CV',
         templateId: template.id,
