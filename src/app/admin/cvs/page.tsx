@@ -97,7 +97,7 @@ export default function AdminCVsPage() {
 
     try {
       const token = getAdminToken();
-      const response = await fetch(`${API_BASE_URL}/cv/${cv.id}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/cvs/${cv.id}`, {
         method: 'DELETE',
         headers: {
           ...(API_KEY && { 'X-API-Key': API_KEY }),
