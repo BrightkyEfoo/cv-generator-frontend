@@ -94,6 +94,7 @@ export default function AdminTemplatesPage() {
                   alt={template.name}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -204,6 +205,7 @@ export default function AdminTemplatesPage() {
                   alt={selectedTemplate.name}
                   fill
                   className="object-contain"
+                  unoptimized
                 />
               </div>
             )}

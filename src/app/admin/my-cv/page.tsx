@@ -9,14 +9,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Save, Loader2, User, Briefcase, GraduationCap, Code, Languages, FolderOpen } from 'lucide-react';
+import { Download, Save, Loader2, User, Briefcase, GraduationCap, Code, Languages, FolderOpen, Eye, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import Image from 'next/image';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.cv-generator.brightkyefoo.cm/api';
 
 export default function MyCV() {
   const [cv, setCV] = useState<CV | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     loadCV();
@@ -26,11 +32,34 @@ export default function MyCV() {
     try {
       const data = await adminPersonalCVApi.get();
       setCV(data);
+      // Load preview after CV is loaded
+      if (data?.id) {
+        loadPreview(data.id);
+      }
     } catch (error) {
       console.error('Failed to load CV:', error);
       toast.error('Erreur lors du chargement du CV');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadPreview = async (cvId: string) => {
+    setIsLoadingPreview(true);
+    try {
+      setPreviewUrl(`${API_BASE_URL}/cv/${cvId}/preview-image?t=${Date.now()}`);
+    } catch (error) {
+      console.error('Failed to load preview:', error);
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
+  const refreshPreview = () => {
+    if (cv?.id) {
+      setPreviewKey(prev => prev + 1);
+      setPreviewUrl(`${API_BASE_URL}/cv/${cv.id}/preview-image?t=${Date.now()}`);
+      toast.success('Aperçu mis à jour');
     }
   };
 
@@ -123,8 +152,12 @@ export default function MyCV() {
         </div>
       </div>
 
-      <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid grid-cols-6 w-full max-w-2xl">
+      <Tabs defaultValue="preview" className="space-y-6">
+        <TabsList className="grid grid-cols-7 w-full max-w-3xl">
+          <TabsTrigger value="preview" className="flex items-center gap-1">
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">Aperçu</span>
+          </TabsTrigger>
           <TabsTrigger value="personal" className="flex items-center gap-1">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Personnel</span>
@@ -150,6 +183,51 @@ export default function MyCV() {
             <span className="hidden sm:inline">Langues</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="preview">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    Aperçu du CV
+                  </CardTitle>
+                  <CardDescription>Prévisualisation de votre CV avec le template Bright OS</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={refreshPreview}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Rafraîchir
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-center">
+                {isLoadingPreview ? (
+                  <div className="flex items-center justify-center h-[600px]">
+                    <Loader2 className="h-8 w-8 animate-spin text-cvOrange" />
+                  </div>
+                ) : previewUrl ? (
+                  <div className="border rounded-lg overflow-hidden shadow-lg max-w-[600px]">
+                    <img
+                      key={previewKey}
+                      src={previewUrl}
+                      alt="Aperçu du CV"
+                      className="w-full h-auto"
+                      onError={() => {
+                        console.error('Failed to load preview image');
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+                    Aucun aperçu disponible
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="personal">
           <Card>
