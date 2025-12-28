@@ -111,3 +111,42 @@ export const adminSettingsApi = {
       body: JSON.stringify(data),
     }),
 };
+
+// Admin Personal CV API
+export const adminPersonalCVApi = {
+  get: () => adminRequest<CV>('/admin/my-cv'),
+
+  create: (data: Partial<CV>) =>
+    adminRequest<CV>('/admin/my-cv', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (data: Partial<CV>) =>
+    adminRequest<CV>('/admin/my-cv', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  updateSection: (section: string, data: unknown) =>
+    adminRequest<CV>(`/admin/my-cv/${section}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  download: async (format: 'pdf' | 'png' = 'pdf'): Promise<Blob> => {
+    const token = getAdminToken();
+    const response = await fetch(`${API_BASE_URL}/admin/my-cv/download?format=${format}`, {
+      headers: {
+        ...(API_KEY && { 'X-API-Key': API_KEY }),
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download CV');
+    }
+
+    return response.blob();
+  },
+};

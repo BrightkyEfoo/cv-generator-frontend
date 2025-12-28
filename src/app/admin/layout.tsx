@@ -13,10 +13,12 @@ import {
   LogOut,
   Menu,
   X,
+  User,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/my-cv', label: 'Mon CV', icon: User },
   { href: '/admin/templates', label: 'Templates', icon: Palette },
   { href: '/admin/cvs', label: 'CVs', icon: FileText },
 ];
