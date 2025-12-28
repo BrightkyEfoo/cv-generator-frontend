@@ -22,13 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Search, Loader2, CheckCircle, XCircle, MoreHorizontal, Eye, Download, Trash2 } from 'lucide-react';
+import { Search, Loader2, CheckCircle, XCircle, Eye, Download, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.cv-generator.brightkyefoo.cm/api';
@@ -192,9 +186,14 @@ export default function AdminCVsPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredCVs.map((cv) => (
-                    <TableRow key={cv.id} className="cursor-pointer hover:bg-accent/50" onClick={() => handleViewCV(cv)}>
+                    <TableRow key={cv.id} className="hover:bg-accent/50">
                       <TableCell className="font-medium">
-                        {cv.personalInfo.firstName} {cv.personalInfo.lastName}
+                        <button
+                          onClick={() => handleViewCV(cv)}
+                          className="text-left hover:text-cvOrange hover:underline transition-colors"
+                        >
+                          {cv.personalInfo.firstName} {cv.personalInfo.lastName}
+                        </button>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {cv.personalInfo.email || '-'}
@@ -213,32 +212,39 @@ export default function AdminCVsPage() {
                       <TableCell className="text-muted-foreground text-sm">
                         {formatDate(cv.createdAt)}
                       </TableCell>
-                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleViewCV(cv)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Voir les détails
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDownloadCV(cv)} disabled={isDownloading === cv.id}>
-                              {isDownloading === cv.id ? (
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              ) : (
-                                <Download className="h-4 w-4 mr-2" />
-                              )}
-                              Télécharger PDF
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteCV(cv)} className="text-destructive">
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Supprimer
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewCV(cv)}
+                            title="Voir les détails"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDownloadCV(cv)}
+                            disabled={isDownloading === cv.id}
+                            title="Télécharger PDF"
+                          >
+                            {isDownloading === cv.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Download className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteCV(cv)}
+                            className="text-destructive hover:text-destructive"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
